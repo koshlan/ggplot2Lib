@@ -1,0 +1,96 @@
+---
+title: "Simple"
+author: "Koshlan"
+date: "February 26, 2015"
+output: html_document
+---
+
+
+At first I found ggplot extremely counter intuitive. These examples really helped me learn the logic of Hadley Wickham's "grammar of graphics" approach. This is not meant to comprehensive. For that see (here, here, or here), rather this is to get you going from zero to sixty
+
+Lets start with an apprecition for plotting a distribution. The first step is to create a plot object in this case we 
+
+
+Get some data:
+```{r}
+require(ggplot2)
+head(diamonds)
+diamonds_sample <-diamonds[sample(nrow(diamonds), 1000), ]
+```
+
+
+The first line created a ggplot object and tell it which dataframe it will use.
+```{r}
+p <- ggplot(diamonds_sample, aes(x = depth)) 
+```
+
+
+The second task add a layer. This layer can be geometry using the x mapping or the x,y mapping. 
+
+The next step is to decide on a geometry. This could be any of the following: geom_point(), geom_bar(),geom_line(), geom_area(),geom_path(), geom_text(), geom_polygon(), or geom_histogram() there are many more (here).
+```{r}
+p <- p + geom_histogram(aes(y=..density..), binwidth = 0.1) 
+```
+
+Using the summary function is really helpful. We can see a lot about the object, including what data features are available. We see that the functions established a mapping from depth to the x-coordinate in ggplot space. 
+
+```{r}
+summary(p)
+```
+
+Now here is where things get interest.  How did this work? This is where it begins to make more sense.
+We could have created this plot by our self using a differnt geometry. The key thing going on under the hood is 
+the the stat (or statistical transformation). ggplot works by transforming the data. The default for points and bar are "identity" or no transformatoin at all
+
+```{r}
+p <- ggplot(diamonds_sample, aes(x = depth , y = price))
+p <- p + geom_point()
+p
+summary(p)
+```
+
+The same points can be made to look like a histogram although ggplot worries what to do with y
+```{r}
+p <- ggplot(diamonds_sample, aes(x = depth))
+p <- p + geom_point(stat = "bin", binwidth = .1)
+p
+```
+
+We can even make geom_histogram from geom_bar
+```{r}
+p <- ggplot(diamonds_sample, aes(x = depth))
+p <- p + geom_bar(stat = "bin", binwidth = .1)
+p
+```
+
+
+```{r}
+d <- ggplot(diamonds_sample, aes(carat, price))
+d <- d + geom_point() + geom_density2d()
+summary(d)
+
+d <- ggplot(diamonds_sample, aes(carat, price))
+d + stat_density2d(geom = "point", aes(size= ..density..), contour = F)
+d + stat_density2d(geom = "tile", aes(fill= ..density..), contour = F)
+last_plot() + scale_fill_gradient(limits = c(1e-5, 8e-4))
+
+d <- ggplot(diamonds_sample, aes(carat, price))
+d + stat_bin2d()
+d + stat_bin2d(bins =10)
+d + stat_bin2d(binwidth =c(.02, 200))
+library(hexbin)
+d + stat_binhex(bins = 10) + geom_density2d()
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
